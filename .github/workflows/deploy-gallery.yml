@@ -1,0 +1,51 @@
+name: Build and deploy BILIGIO gallery
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.pages.yml'
+      - 'content/gallery/**'
+      - 'media/gallery/**'
+      - 'assets/gallery.*'
+      - 'build_gallery.py'
+      - '.github/workflows/deploy-gallery.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: biligio-gallery-deploy
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get repository
+        uses: actions/checkout@v4
+      - name: Build gallery pages (UTF-8)
+        run: python3 build_gallery.py
+      - name: Confirm output directory
+        run: test -f dist/gallery/index.html
+      # SAFETY: This workflow starts in dry-run mode.
+      # 1) Confirm Cafe24 supports explicit FTPS/TLS on port 21.
+      # 2) Confirm FTP login's root: is the site /www/gallery/ or /gallery/?
+      # 3) Set server-dir only to your dedicated EMPTY gallery folder.
+      # 4) After reviewing the dry-run log, change dry-run to false.
+      # This action supports FTP/FTPS, NOT SFTP. Use a different workflow for SFTP.
+      - name: Upload gallery ONLY via FTPS (dry-run by default)
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+        with:
+          server: ${{ secrets.CAFE24_FTP_HOST }}
+          username: ${{ secrets.CAFE24_FTP_USER }}
+          password: ${{ secrets.CAFE24_FTP_PASSWORD }}
+          protocol: ftps
+          port: 21
+          local-dir: ./dist/gallery/
+          # EXAMPLE ONLY: replace based on FileZilla remote login root!
+          server-dir: ./www/gallery/
+          dry-run: true
+          dangerous-clean-slate: false
+          log-level: standard
