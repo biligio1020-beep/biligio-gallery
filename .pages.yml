@@ -1,0 +1,86 @@
+# Pages CMS configuration (UTF-8)
+# This file must be in the repository root.
+media:
+  - name: gallery_images
+    label: 대여 사례 사진
+    input: media/gallery
+    output: /gallery/media
+    rename: safe
+    extensions: [jpg, jpeg, png, webp]
+
+content:
+  - name: rental_cases
+    label: 대여 사례
+    type: collection
+    path: content/gallery
+    format: json
+    filename: "{url_id}.json"
+    fields:
+      - name: url_id
+        label: 주소용 영문 ID (게시 후 변경하지 마세요)
+        type: string
+        required: true
+        pattern: "^[a-z0-9][a-z0-9-]*$"
+        description: "예: jazz-stage-2026 / 영문 소문자, 숫자, 하이픈만"
+      - name: title
+        label: 게시글 제목
+        type: string
+        required: true
+      - name: date
+        label: 대여 진행일
+        type: date
+        required: true
+        options:
+          format: yyyy-MM-dd
+      - name: category
+        label: 카테고리
+        type: select
+        required: true
+        options:
+          values:
+            - name: performance
+              label: 공연·연주회
+            - name: event
+              label: 행사·축제
+            - name: shooting
+              label: 촬영·방송
+            - name: school
+              label: 학교·기관
+            - name: experience
+              label: 악기 체험·전시
+      - name: instruments
+        label: 대여 악기
+        type: string
+        description: "예: 가야금, 거문고, 양금"
+      - name: summary
+        label: 간단 소개
+        type: text
+        required: true
+      - name: cover
+        label: 대표 사진
+        type: image
+        options:
+          media: gallery_images
+          extensions: [jpg, jpeg, png, webp]
+          rename: safe
+      - name: photos
+        label: 상세 사진 (최대 12장)
+        type: image
+        options:
+          media: gallery_images
+          multiple:
+            max: 12
+          unique: true
+          extensions: [jpg, jpeg, png, webp]
+          rename: safe
+      - name: published
+        label: 홈페이지에 공개
+        type: boolean
+        description: "켜면 배포 후 홈페이지에 표시됩니다. 초안은 꺼 두세요."
+    view:
+      primary: title
+      fields: [title, category, date, published]
+      sort: [date, title]
+      default:
+        sort: date
+        order: desc
