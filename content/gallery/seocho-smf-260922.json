@@ -7,8 +7,25 @@
   "instruments": "용고, 정악/산조 가야금, 거문고, 양금",
   "summary": "서초 서리풀뮤직페스티벌에서 국악기 체험 부스에 우리나라 전통 국악기를 대여했습니다.\n악기들을 직접 체험하고 연주해볼 수 있도록 직원과 상주하여 부스의 운영도 함께 했습니다.",
   "cover": "/gallery/media/kakaotalk2026092116345623205.jpg",
-  "photos": [
-    "/gallery/media/kakaotalk2026092116345623202.jpg"
+  "sections": [
+    {
+      "type": "heading",
+      "text": "용고 연주 체험"
+    },
+    {
+      "type": "photo",
+      "image": "/gallery/media/12321pngoptimized.jpg",
+      "caption": "쉽게 만나볼 수 없는 용고를 직접 연주해볼 수 있었습니다."
+    },
+    {
+      "type": "heading",
+      "text": "가야금, 해금 연주 체험"
+    },
+    {
+      "type": "photo_pair",
+      "image_left": "/gallery/media/kakaotalk2026092019165605804jpgoptimized.jpg",
+      "image_right": "/gallery/media/kakaotalk20260921163456232jpgoptimized.jpg"
+    }
   ],
   "published": true
 }
