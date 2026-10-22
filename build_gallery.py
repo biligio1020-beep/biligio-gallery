@@ -46,9 +46,20 @@ def page(title, description, body, canonical, image=''):
 <link rel="canonical" href="https://biligio.com{h(canonical)}">
 <meta property="og:title" content="{h(title)}"><meta property="og:description" content="{h(description)}">
 {og_image}<link rel="stylesheet" href="/gallery/assets/gallery.css"></head>
-<body><header class="site-nav"><nav class="wrap" aria-label="기본 메뉴"><a class="logo" href="/"><img src="/assets/images/brand/biligio-logo.png" alt="빌리지오 홈"></a><div class="navlinks"><a href="/">홈페이지</a><a href="/gallery/">대여 사례</a><a href="/mobile/">모바일 홈</a></div></nav></header>
+<body>
+<header class="gallery-header"><div class="gallery-header-inner">
+<a class="gallery-header-logo" href="/" aria-label="빌리지오 홈"><img src="/assets/images/brand/biligio-logo.png" alt="biligio rental shop"></a>
+<nav class="gallery-header-nav" aria-label="주요 메뉴">
+<a href="/products/">전체상품</a><a href="/wind/">관악기</a><a href="/string/">현악기</a><a href="/percussion/">타악기</a><a href="/traditional/">국악기</a><a href="/gallery/" aria-current="page">대여 사례</a>
+</nav>
+<div class="gallery-header-actions"><a class="gallery-home-link" href="/">홈으로</a><a class="gallery-talk-link" href="http://qr.kakao.com/talk/.Kl8Ne0UDdGd_YyhfUL4AI0Z02I-" target="_blank" rel="noopener noreferrer">대여 상담</a></div>
+<details class="gallery-mobile-menu"><summary aria-label="메뉴 열기"><span class="gallery-menu-icon" aria-hidden="true"></span></summary>
+<nav class="gallery-mobile-links" aria-label="모바일 메뉴">
+<a href="/mobile/">악기대여</a><a href="/products/">대여악기</a><a href="/gallery/" aria-current="page">대여 사례</a><a href="/mobile/#process">이용방법</a><a href="tel:024579444">문의하기</a><a href="https://www.instagram.com/bili__gio/" target="_blank" rel="noopener noreferrer">Instagram @bili__gio</a>
+</nav></details>
+</div></header>
 {body}
-<footer class="footer"><div class="wrap">© BILIGIO · 실제 악기 대여 사례를 소개합니다.</div></footer>
+<footer class="footer"><div class="wrap gallery-footer-inner"><a href="/" class="gallery-footer-logo" aria-label="빌리지오 홈"><img src="/assets/images/brand/biligio-logo.png" alt="biligio rental shop"></a><p>빌리지오 BILIGIO · 서울특별시 광진구 아차산로 635 현수상가 1층 6호<br>대표전화 02-457-9444</p><span class="gallery-footer-tag">필요한 순간, 필요한 악기를.</span></div></footer>
 <script defer src="/gallery/assets/gallery.js"></script></body></html>'''
 
 def display_date(c):
