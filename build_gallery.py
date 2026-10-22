@@ -62,6 +62,59 @@ def page(title, description, body, canonical, image=''):
 <footer class="footer"><div class="wrap gallery-footer-inner"><a href="/" class="gallery-footer-logo" aria-label="빌리지오 홈"><img src="/assets/images/brand/biligio-logo.png" alt="biligio rental shop"></a><p>빌리지오 BILIGIO · 서울특별시 광진구 아차산로 635 현수상가 1층 6호<br>대표전화 02-457-9444</p><span class="gallery-footer-tag">필요한 순간, 필요한 악기를.</span></div></footer>
 <script defer src="/gallery/assets/gallery.js"></script></body></html>'''
 
+def blocks_for_case(case):
+    """Validate optional CMS blocks; old posts without sections keep legacy format."""
+    sections = case.get('sections') or []
+    if not isinstance(sections, list):
+        raise ValueError('상세 본문(sections)은 목록이어야 합니다.')
+    for n, item in enumerate(sections, 1):
+        if not isinstance(item, dict):
+            raise ValueError(f'상세 본문 {n}번 블록 형식이 잘못되었습니다.')
+        kind = item.get('type')
+        if kind not in ('photo', 'photo_pair', 'paragraph', 'heading'):
+            raise ValueError(f'상세 본문 {n}번 블록 유형을 확인하세요: {kind}')
+        if kind in ('photo', 'photo_pair'):
+            fields = ['image'] if kind == 'photo' else ['image_left', 'image_right']
+            for field in fields:
+                if not image_url(item.get(field)):
+                    raise ValueError(f'상세 본문 {n}번 사진을 선택해 주세요: {field}')
+        if kind in ('paragraph', 'heading') and not str(item.get('body' if kind == 'paragraph' else 'text', '')).strip():
+            raise ValueError(f'상세 본문 {n}번의 글을 입력해 주세요.')
+    return sections
+
+
+def block_photo_values(case):
+    for block in blocks_for_case(case):
+        if block['type'] == 'photo':
+            yield block.get('image')
+        elif block['type'] == 'photo_pair':
+            yield block.get('image_left')
+            yield block.get('image_right')
+
+
+def render_blocks(case):
+    """Safe HTML for four ordered block types; no raw HTML/JS accepted."""
+    output = []
+    for item in blocks_for_case(case):
+        kind = item['type']
+        if kind == 'heading':
+            output.append(f'<h2 class="story-heading">{h(item["text"])}</h2>')
+        elif kind == 'paragraph':
+            output.append(f'<div class="story-paragraph">{h(item["body"])}</div>')
+        elif kind == 'photo':
+            src = image_url(item['image'])
+            caption = f'<figcaption>{h(item["caption"])}</figcaption>' if item.get('caption') else ''
+            output.append(f'<figure class="story-photo"><a href="{h(src)}" target="_blank" rel="noopener"><img src="{h(src)}" alt="{h(case["title"])} 현장 사진" loading="lazy"></a>{caption}</figure>')
+        elif kind == 'photo_pair':
+            items = []
+            for key in ('image_left', 'image_right'):
+                src = image_url(item[key])
+                items.append(f'<a href="{h(src)}" target="_blank" rel="noopener"><img src="{h(src)}" alt="{h(case["title"])} 현장 사진" loading="lazy"></a>')
+            caption = f'<figcaption>{h(item["caption"])}</figcaption>' if item.get('caption') else ''
+            output.append(f'<figure class="story-photo-pair"><div class="story-pair-grid">{"".join(items)}</div>{caption}</figure>')
+    return '<div class="story-blocks">' + ''.join(output) + '</div>' if output else ''
+
+
 def display_date(c):
     mode = c.get('date_display', 'day')
     if mode == 'hidden':
@@ -92,6 +145,7 @@ def load_cases():
             date.fromisoformat(str(data.get('date', ''))[:10])
         except ValueError as e:
             raise ValueError(f'날짜를 YYYY-MM-DD로 입력하세요: {f.name}') from e
+        blocks_for_case(data)
         data['_slug'] = slug
         results.append(data)
     return sorted(results, key=lambda d: (d.get('date') or '', d['_slug']), reverse=True)
@@ -116,19 +170,32 @@ def render_detail(c):
     cover = image_url(c.get('cover'))
     photos = [image_url(p) for p in (c.get('photos') or [])]
     photos = [x for x in photos if x]
-    display = list(dict.fromkeys(([cover] if cover else []) + photos))
-    hero = f'<img class="detail-hero" src="{h(display[0])}" alt="{h(c.get("title"))}">' if display else ''
-    more = '<div class="detail-photos">' + ''.join(f'<a href="{h(x)}" target="_blank" rel="noopener"><img loading="lazy" src="{h(x)}" alt="{h(c.get("title"))} 현장 사진 {i}"></a>' for i, x in enumerate(display[1:],1)) + '</div>' if len(display)>1 else ''
+    sections = blocks_for_case(c)
+    # Legacy posts keep their original cover + additional-photo behavior.
+    # In a new block-based post the cover is a listing thumbnail; blocks set order.
+    if sections:
+        hero = ''
+        in_blocks = {image_url(x) for x in block_photo_values(c)}
+        legacy = list(dict.fromkeys(p for p in photos if p not in in_blocks))
+        ordered_content = render_blocks(c)
+    else:
+        all_legacy = list(dict.fromkeys(([cover] if cover else []) + photos))
+        hero = f'<img class="detail-hero" src="{h(all_legacy[0])}" alt="{h(c.get("title"))}">' if all_legacy else ''
+        legacy = all_legacy[1:]
+        ordered_content = ''
+    # Additional legacy pictures are never discarded when blocks are added.
+    more = '<div class="detail-photos">' + ''.join(f'<a href="{h(x)}" target="_blank" rel="noopener"><img loading="lazy" src="{h(x)}" alt="{h(c.get("title"))} 추가 사진 {i}"></a>' for i, x in enumerate(legacy, 1)) + '</div>' if legacy else ''
     date_html = f'<span>대여 진행일: {h(display_date(c))}</span>' if display_date(c) else ''
     body = f'''<main class="wrap detail"><a class="back" href="/gallery/">← 전체 대여 사례로</a>
 <div class="eyebrow" style="margin-top:28px">{h(CATEGORIES[c['category']])}</div><h1>{h(c.get('title'))}</h1>
 <div class="detail-meta">{date_html}<span>대여 악기: {h(c.get('instruments'))}</span></div>
-<p class="lead">{h(c.get('summary'))}</p>{hero}{more}
+<p class="lead">{h(c.get('summary'))}</p>{hero}{ordered_content}{more}
 <section class="cta"><h2>이런 악기가 필요하신가요?</h2><p>사용 목적, 기간, 수량을 알려주시면 대여 방법을 안내합니다.</p><a href="http://qr.kakao.com/talk/.Kl8Ne0UDdGd_YyhfUL4AI0Z02I-" target="_blank" rel="noopener noreferrer">대여 문의하기 →</a></section></main>'''
     slug = c['_slug']
     folder = OUT / slug
     folder.mkdir(parents=True, exist_ok=True)
-    (folder / 'index.html').write_text(page(c['title'], c.get('summary'), body, f'/gallery/{slug}/', display[0] if display else ''), encoding='utf-8')
+    social_image = cover or next((image_url(x) for x in block_photo_values(c)), '') or (photos[0] if photos else '')
+    (folder / 'index.html').write_text(page(c['title'], c.get('summary'), body, f'/gallery/{slug}/', social_image), encoding='utf-8')
 
 
 def main():
@@ -145,6 +212,7 @@ def main():
     for case in cases:
         photo_values.append(case.get('cover'))
         photo_values.extend(case.get('photos') or [])
+        photo_values.extend(block_photo_values(case))
     for value in photo_values:
         url = image_url(value)
         if not url:
