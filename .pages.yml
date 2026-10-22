@@ -85,6 +85,55 @@ content:
           unique: true
           extensions: [jpg, jpeg, png, webp]
           rename: safe
+      # New ordered content blocks. Previous posts still use cover/photos.
+      - name: sections
+        label: 상세 본문 (사진·글 순서대로 추가)
+        type: block
+        list: true
+        blockKey: type
+        blocks:
+          - name: photo
+            label: 사진 1장
+            fields:
+              - name: image
+                label: 사진 선택
+                type: image
+                options:
+                  media: gallery_images
+                  extensions: [jpg, jpeg, png, webp]
+              - name: caption
+                label: 사진 아래 설명 (선택)
+                type: text
+          - name: photo_pair
+            label: 사진 2장 나란히
+            fields:
+              - name: image_left
+                label: 왼쪽 사진
+                type: image
+                options:
+                  media: gallery_images
+                  extensions: [jpg, jpeg, png, webp]
+              - name: image_right
+                label: 오른쪽 사진
+                type: image
+                options:
+                  media: gallery_images
+                  extensions: [jpg, jpeg, png, webp]
+              - name: caption
+                label: 사진 아래 설명 (선택)
+                type: text
+          - name: paragraph
+            label: 글
+            fields:
+              - name: body
+                label: 본문 글
+                type: text
+          - name: heading
+            label: 소제목
+            fields:
+              - name: text
+                label: 소제목
+                type: string
       - name: published
         label: 홈페이지에 공개
         type: boolean
