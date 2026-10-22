@@ -1,6 +1,8 @@
-name: Build and deploy BILIGIO gallery
+name: BILIGIO gallery — SFTP 3822
 
 on:
+  pull_request:
+    branches: [main]
   push:
     branches: [main]
     paths:
@@ -8,9 +10,18 @@ on:
       - 'content/gallery/**'
       - 'media/gallery/**'
       - 'assets/gallery.*'
-      - 'build_gallery.py'
+      - '*.py'
+      - 'homepage_patch.json'
+      - 'requirements-deploy.txt'
       - '.github/workflows/deploy-gallery.yml'
   workflow_dispatch:
+    inputs:
+      mode:
+        description: 'check: 접속 검사 / install: 갤러리+홈 메뉴 설치 / deploy: 갤러리만 갱신'
+        required: true
+        default: check
+        type: choice
+        options: [check, install, deploy]
 
 permissions:
   contents: read
@@ -20,32 +31,34 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
+  gallery:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - name: Get repository
-        uses: actions/checkout@v4
-      - name: Build gallery pages (UTF-8)
-        run: python3 build_gallery.py
-      - name: Confirm output directory
-        run: test -f dist/gallery/index.html
-      # SAFETY: This workflow starts in dry-run mode.
-      # 1) Confirm Cafe24 supports explicit FTPS/TLS on port 21.
-      # 2) Confirm FTP login's root: is the site /www/gallery/ or /gallery/?
-      # 3) Set server-dir only to your dedicated EMPTY gallery folder.
-      # 4) After reviewing the dry-run log, change dry-run to false.
-      # This action supports FTP/FTPS, NOT SFTP. Use a different workflow for SFTP.
-      - name: Upload gallery ONLY via FTPS (dry-run by default)
-        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          server: ${{ secrets.CAFE24_FTP_HOST }}
-          username: ${{ secrets.CAFE24_FTP_USER }}
-          password: ${{ secrets.CAFE24_FTP_PASSWORD }}
-          protocol: ftps
-          port: 21
-          local-dir: ./dist/gallery/
-          # EXAMPLE ONLY: replace based on FileZilla remote login root!
-          server-dir: ./www/gallery/
-          dry-run: true
-          dangerous-clean-slate: false
-          log-level: standard
+          python-version: '3.12'
+      - name: Validate gallery and homepage changes
+        run: python -m unittest discover -s tests -v
+      - name: Build gallery
+        run: python build_gallery.py
+      - name: Keep generated gallery for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: biligio-gallery-preview
+          path: dist/gallery/
+          retention-days: 7
+      - name: Install SFTP dependency
+        if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && vars.GALLERY_AUTO_DEPLOY == 'true') }}
+        run: python -m pip install -r requirements-deploy.txt
+      - name: Check or publish via SFTP 3822
+        if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && vars.GALLERY_AUTO_DEPLOY == 'true') }}
+        env:
+          # Reuse the existing three Secrets; their names do not set the protocol.
+          CAFE24_SFTP_HOST: ${{ secrets.CAFE24_FTP_HOST }}
+          CAFE24_SFTP_USER: ${{ secrets.CAFE24_FTP_USER }}
+          CAFE24_SFTP_PASSWORD: ${{ secrets.CAFE24_FTP_PASSWORD }}
+          CAFE24_SFTP_HOSTKEY_SHA256: ${{ secrets.CAFE24_SFTP_HOSTKEY_SHA256 }}
+          REQUESTED_MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || 'deploy' }}
+        run: python sftp_deploy.py --mode "$REQUESTED_MODE"
