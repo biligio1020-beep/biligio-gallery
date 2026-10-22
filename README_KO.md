@@ -1,80 +1,64 @@
-# 빌리지오 갤러리 시작 패키지
+# 빌리지오 대여 사례 — 통합 설치 준비본
 
-이 파일들은 **기존 홈페이지 전체를 대체하지 않습니다.** 갤러리 전용 `/gallery/` 폴더만 추가하는 예시 템플릿입니다.
-호스팅 설정은 실제 파일질라 경로와 FTPS 지원 여부 확인 후 수정하세요.
+2026-10-22에 확인한 FileZilla 설정과 www(2).zip을 기준으로 준비했습니다.
 
-## 파일 구성
-- `.pages.yml` : Pages CMS 입력 화면 정의(사진 업로드, 제목, 카테고리, 공개 여부)
-- `content/gallery/*.json` : 게시글 1개 = JSON 파일 1개 (초안 예시 1개 포함, 공개 안 됨)
-- `media/gallery/` : 업로드된 사진의 원본을 GitHub에 저장
-- `build_gallery.py` : GitHub의 게시글로 정적 HTML 생성 (Python 표준 라이브러리만 사용)
-- `assets/gallery.css` : 갤러리 디자인 CSS
-- `assets/gallery.js` : 카테고리 필터
-- `.github/workflows/deploy-gallery.yml` : GitHub Actions에서 빌드하고 FTPS로 업로드
+## 한 번 설치한 뒤 운영하는 방식
 
-## 1. 업로드 전 카페24 체크
-1. 파일질라에서 운영 사이트 전체 백업.
-2. 오른쪽 서버 원격 경로를 기록. `/www/index.html`의 `/www`가 FTP 로그인 루트 아래 있는지 확인.
-3. FileZilla 사이트 관리자에서 **명시적 FTP over TLS (FTPS)** 접속 가능 여부 확인. 단순 FTP가 되는 것만으로 FTPS를 지원한다는 뜻은 아닙니다.
-4. 카페24 FTP 국가/IP 차단을 확인. GitHub의 해외 서버 IP가 차단되면 Actions 업로드가 실패합니다.
-5. `www/gallery/` 또는 `gallery/`만 대상으로 사용할 별도 폴더 생성. 기존 파일이 없어야 합니다.
+Pages CMS에서 사진·글 저장 → GitHub가 갤러리 생성 → SFTP로 /biligio/www/gallery/ 갱신.
+PC와 모바일은 같은 갤러리 주소를 사용합니다. 홈페이지 전체를 다시 업로드하지 않습니다.
 
-## 2. GitHub에 업로드
-1. GitHub 로그인 → New repository → 예: `biligio-gallery` → Private 권장 (무료 Actions 한도 확인).
-2. 생성한 repository에 이 패키지 파일을 **폴더째가 아니라 내부 파일/폴더**로 업로드.
-3. 리포지토리 맨 위에 `.pages.yml` 파일이 보여야 합니다.
-4. GitHub Web UI에서는 숨김 파일/숨김 폴더가 ZIP 해제 화면에서 누락될 수 있으므로 반드시 `.pages.yml`과 `.github/workflows/deploy-gallery.yml` 존재를 확인하세요.
+## 연결 정보
 
-## 3. Pages CMS 연결
-1. https://app.pagescms.org/ → Sign in with GitHub.
-2. Github App 설치 요청 시 방금 만든 `biligio-gallery` repository만 선택해 권한 부여.
-3. `biligio-gallery` → `대여 사례` 컬렉션 → 새 글.
-4. `url_id`: `event-2026-01` 형태의 영문·숫자·하이픈만 입력하고 이후 바꾸지 않습니다.
-5. 사진과 제목, 날짜, 카테고리, 설명 입력. 첫 테스트는 `홈페이지에 공개` OFF.
-6. 저장하면 Github `content/gallery/` 또는 `media/gallery/`에 반영됩니다.
+- 접속 방식: SFTP, 포트 **3822**. 과거 안내의 22나 FTPS 21을 사용하지 않습니다.
+- 확인된 로그인 시작 경로: `/biligio`
+- 홈페이지: `/biligio/www`
+- 갤러리: `/biligio/www/gallery`
+- 기존 Secrets 재사용: `CAFE24_FTP_HOST`, `CAFE24_FTP_USER`, `CAFE24_FTP_PASSWORD`
+- 추가할 Secret 하나: `CAFE24_SFTP_HOSTKEY_SHA256`
+  - 기존에 신뢰한 FileZilla 연결의 서버 키 SHA256 지문을 입력합니다.
+  - 형식: `SHA256:...`. 호스트 키 확인을 생략하거나 임의 지문을 입력하지 않습니다.
+- 비밀번호는 앞뒤 공백까지 원문대로 사용합니다. 채팅이나 코드에 넣지 않습니다.
 
-## 4. Actions 준비
-GitHub repository → Settings → Secrets and variables → Actions → Repository secrets:
-- `CAFE24_FTP_HOST`: 예: `host.cafe24.com` (실제 호스트)
-- `CAFE24_FTP_USER`: 실제 FTP 아이디
-- `CAFE24_FTP_PASSWORD`: 실제 FTP 비밀번호
+## 설치
 
-비밀번호는 GitHub 일반 코드/README/PagesCMS 입력 글에 적지 마세요.
+1. 변경 내용을 검토하고 main에 반영합니다.
+2. 기존 접속 Secrets가 FileZilla에서 사용하는 값인지 확인하고 서버 지문 Secret을 등록합니다.
+3. Actions의 `BILIGIO gallery — SFTP 3822`에서 수동 실행합니다.
+   - `check`: 갤러리 생성 후 접속·경로·갤러리 관리 상태만 검사. 서버 쓰기 없음.
+   - `install`: PC/모바일 원본 일치 확인 → 갤러리 배포 → 홈페이지 메뉴 연결. 최초 한 번만 필요.
+   - `deploy`: 갤러리만 갱신. 홈페이지 파일을 재업로드하지 않음.
+4. 정상 게시를 확인한 후 Repository variable `GALLERY_AUTO_DEPLOY`를 `true`로 설정하면 CMS 저장에 따른 자동배포가 시작됩니다.
 
-## 5. 자동 배포 초기 테스트
-1. `.github/workflows/deploy-gallery.yml`에서 `server-dir: ./www/gallery/`를 실제 파일질라 FTP 로그인 루트 기준으로 수정. FTP 로그인하면 이미 `index.html`이 보이는 상태라면 보통 `./gallery/`입니다.
-2. 기본 `dry-run: true`이므로 빌드·FTPS 접속·변경 예정사항을 검토할 수 있지만 **파일 업로드는 하지 않습니다**.
-3. Github Actions → Build and deploy BILIGIO gallery → Run workflow → 로그 확인.
-4. 결과와 FTP 서버 폴더 위치가 정확하며 기존 파일 삭제 위험이 없는지 다시 확인한 뒤 `dry-run: false` 변경.
-5. Pages CMS에서 게시글의 `홈페이지에 공개` ON, 저장 → Actions 성공 후 `https://biligio.com/gallery/` 접속 확인.
-6. 이후 자동으로 추가 등록/수정/삭제됩니다 (연결 정상인 경우).
+초기 install 실행은 실제 서버에 파일을 씁니다. 검토·승인된 시점에만 실행합니다.
+PR 검증에는 서버 접속 정보를 전달하지 않습니다.
 
-> 호스팅이 FTPS를 제공하지 않으면 첨부된 FTP Deploy Action을 그대로 사용하지 마세요. SFTP 전용 workflow가 필요하거나 다른 배포 경로를 구성해야 합니다. 일반 FTP는 암호화되지 않으므로 권장하지 않습니다.
+## 변경 범위와 원본 보호
 
-## 6. PC에서 빌드 확인
-Python 3 설치 후 ZIP 압축 해제 폴더에서:
-```sh
-python3 build_gallery.py
-python3 -m http.server 8000 --directory dist
-```
-브라우저에서 `http://localhost:8000/gallery/` 접속.
-공개된 글이 아직 없으면 "게시된 대여 사례가 아직 없습니다."가 정상입니다.
+- 홈페이지 수정은 `index.html`, `mobile/index.html` 두 개만 허용합니다.
+- 각 페이지의 메뉴와 푸터에 대여 사례 링크를 추가합니다.
+- 모바일의 악기대여·이용방법·문의하기·홈 링크를 실제 구역 ID에 맞춥니다.
+- 상품 데이터, 기존 상품 연동, newhome 폴더는 수정하지 않습니다.
+- 첨부 ZIP 원본의 SHA256이 서버와 일치해야 메뉴를 수정합니다. 이미 수정본과 같으면 건너뜁니다.
+- 수정 전 원본은 공개 www 밖의 `/biligio/DataBackup/gallery-menu-날짜/`에 보관하고 내용까지 검증합니다.
+- 갤러리 폴더가 비어 있지 않고 관리 표식도 없으면 중단합니다.
+- 이후에는 갤러리 관리 목록에 기록된 파일만 정리하며, 수동 파일이 발견되면 중단합니다.
 
-## UTF-8 안내
-- `.pages.yml`, JSON 파일, HTML 출력은 UTF-8입니다.
-- HTML은 `<meta charset="UTF-8">` 포함.
-- URL 식별자는 영문·숫자·하이픈 권장, **보이는 제목과 설명은 한글 가능**.
-- 서버의 UTF-8 사용 여부는 FTP 프로토콜, 포트, IP 제한과 별개입니다.
+## CMS와 사진
 
-## 운영 전 필수
-- 기존 홈페이지 PC/모바일 메뉴에 `/gallery/` 링크 추가(한 번만).
-- 대여 업체명·행사명·얼굴·촬영 결과물의 게시 권한 확인.
-- 너무 큰 사진은 업로드 전 1600~2000px 권장, WebP/JPEG 압축.
-- 공개 글이 삭제되면 배포 과정에서 그 글의 페이지가 삭제될 수 있으므로 PagesCMS에서 수정/비공개만 사용하고 GitHub 이력을 백업으로 활용.
-- `www/gallery/` 폴더는 갤러리 전용으로만 쓰고 기존 홈페이지 코드/상품 연동 파일을 넣지 마세요.
+- `.pages.yml`의 기존 입력 항목을 유지하고 날짜 표시(날짜/월/숨김)를 추가했습니다.
+- 진행일은 정렬에 사용합니다. 공개 화면에서는 숨기거나 월까지만 표시할 수 있습니다.
+- 공개 글이 없는 분류는 숨깁니다.
+- 공개 글에서 참조한 사진만 홈페이지에 배포합니다.
+- **현재 GitHub 저장소 자체는 공개 상태입니다. 비공개 초안도 저장소에서는 공개될 수 있습니다.**
+  공개하면 안 되는 원본 사진을 이 저장소에 넣지 마세요. 비공개 자료 보관이 필요하면 저장소 공개 범위와 Pages CMS 접근을 함께 확인해야 합니다.
+- 예시 글은 비공개로 유지합니다. 실제 사례를 임의로 만들어 게시하지 않았습니다.
 
-## 추가 확인 사항
-- 카페24 FTP 서버가 FTPS를 실제로 지원하는가
-- GitHub Actions가 실행되는 서버 IP의 카페24 접속 차단 여부
-- FileZilla 접속 후 실제 `www` 폴더 위치와 `gallery/` 절대 경로
-- 기존 디자인의 헤더, 색상, 상담 URL 등 최종 통합 정보
+## 확인한 범위
+
+로컬 테스트: 비공개 사진 제외, 날짜 공개 범위, HTML 이스케이프, 이미지 경로, 검사 모드 무변경,
+관리 파일만 삭제, 원본 변경 시 중단, 백업·재실행, 심볼릭 링크 차단.
+첨부 홈페이지 원본으로 메뉴 변경 결과와 내부 링크를 검증했습니다.
+실제 브라우저의 시각 검사는 이 환경에 브라우저 실행 파일이 없어 완료하지 못했습니다.
+실제 SFTP 로그인·설치와 Pages CMS에서 사진 등록까지는 아직 실행하지 않았습니다.
+
+기존 준비 파일 `biligio_gallery_SFTP_UTF8_v2.zip`을 바탕으로 현재 서버 설정과 기존 Secrets에 맞춰 보완했습니다.

@@ -1,0 +1,46 @@
+{
+  "index.html": {
+    "before_sha256": "b6958c133f1dc3c2903df2f89a5f3c6df25d410309fa3b1d17a9443f99093729",
+    "after_sha256": "aec113b918955a07fae582cb6c5c941d06b9171c0e4c4634965c64be377c0bf5",
+    "replacements": [
+      [
+        "<a href=\"#process\">이용안내</a>",
+        "<a href=\"gallery/\">대여 사례</a>\n    <a href=\"#process\">이용안내</a>"
+      ],
+      [
+        "<a href=\"mobile/\">모바일 페이지</a>",
+        "<a href=\"gallery/\">대여 사례</a>\n    <a href=\"mobile/\">모바일 페이지</a>"
+      ]
+    ]
+  },
+  "mobile/index.html": {
+    "before_sha256": "75f50d8ddd9f2198e0a31d9f14d219eaf48c010875c6116c4ea72155930cf5eb",
+    "after_sha256": "c230dfa7af6813724324c42a787a5d1aeca2e57a14eca6892037193efc415095",
+    "replacements": [
+      [
+        "href=\"#rental\"",
+        "href=\"#section-rental-categories\""
+      ],
+      [
+        "href=\"#process\"",
+        "href=\"#section-rental-process\""
+      ],
+      [
+        "href=\"#contact\"",
+        "href=\"#section-final-contact\""
+      ],
+      [
+        "href=\"#top\"",
+        "href=\"#section-header\""
+      ],
+      [
+        "<a href=\"../products/\">대여악기</a>",
+        "<a href=\"../products/\">대여악기</a><a href=\"../gallery/\">대여 사례</a>"
+      ],
+      [
+        "<a href=\"../?pc=1\">PC 홈페이지</a>",
+        "<a href=\"../gallery/\">대여 사례</a><a href=\"../?pc=1\">PC 홈페이지</a>"
+      ]
+    ]
+  }
+}
