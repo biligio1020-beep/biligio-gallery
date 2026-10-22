@@ -32,6 +32,18 @@ content:
         required: true
         options:
           format: yyyy-MM-dd
+      - name: date_display
+        label: 홈페이지 날짜 표시
+        type: select
+        default: day
+        options:
+          values:
+            - name: day
+              label: 날짜까지 표시
+            - name: month
+              label: 연도와 월만 표시
+            - name: hidden
+              label: 날짜 숨김
       - name: category
         label: 카테고리
         type: select
