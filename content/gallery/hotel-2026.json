@@ -1,0 +1,33 @@
+{
+  "url_id": "hotel-2026",
+  "title": "소머셋 호텔 교환학생 현악기 대여",
+  "date": "2026-03-09",
+  "date_display": "day",
+  "category": "school",
+  "instruments": "콘트라베이스, 첼로, 비올라, 바이올린",
+  "summary": "소머셋 호텔에서 진행한 교환학생들의 연주회에 현악기를 대여했습니다.",
+  "cover": "/gallery/media/chatgpt-image-2026-9-1-031640-2pngoptimized.jpg",
+  "sections": [
+    {
+      "type": "photo",
+      "image": "/gallery/media/kakaotalk20260309150325227jpgoptimized.jpg",
+      "caption": "콘트라베이스"
+    },
+    {
+      "type": "photo",
+      "image": "/gallery/media/kakaotalk2026030915032522703jpgoptimized-1.jpg",
+      "caption": "첼로"
+    },
+    {
+      "type": "photo",
+      "image": "/gallery/media/kakaotalk2026030915032522702jpgoptimized.jpg",
+      "caption": "비올라"
+    },
+    {
+      "type": "photo",
+      "image": "/gallery/media/kakaotalk2026030915032522701jpgoptimized.jpg",
+      "caption": "바이올린"
+    }
+  ],
+  "published": true
+}
