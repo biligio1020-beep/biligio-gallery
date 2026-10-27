@@ -1,0 +1,22 @@
+{
+  "url_id": "hongdaeorche-2026",
+  "title": "홍콩 어린이 오케스트라 첼로 대여",
+  "date": "2026-04-20",
+  "date_display": "day",
+  "category": "performance",
+  "instruments": "1/2첼로, 1/4첼로",
+  "summary": "홍콩에서 온 어린이 오케스트라 악단에 첼로를 대여했습니다.",
+  "cover": "/gallery/media/chatgpt-image-2026-9-1-031640-1pngoptimized.jpg",
+  "sections": [
+    {
+      "type": "photo",
+      "image": "/gallery/media/kakaotalk2026050617241974003jpgoptimized.jpg"
+    },
+    {
+      "type": "photo",
+      "image": "/gallery/media/kakaotalk20260506172419740jpgoptimized.jpg",
+      "caption": "대여일정 후 마음이 담긴 짧은 편지로 감사함을 표현해주셨습니다."
+    }
+  ],
+  "published": true
+}
