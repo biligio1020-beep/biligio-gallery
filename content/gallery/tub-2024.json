@@ -1,0 +1,20 @@
+{
+  "url_id": "tub-2024",
+  "title": "튜바 대여 - 화보 촬영용 오브제",
+  "date": "2024-04-27",
+  "date_display": "month",
+  "category": "shooting",
+  "instruments": "튜바",
+  "summary": "데이즈드 화보 촬영의 오브제로 튜바를 대여했습니다.",
+  "cover": "/gallery/media/249jpgoptimized.jpg",
+  "photos": [
+    "/gallery/media/2492jpgoptimized.jpg"
+  ],
+  "sections": [
+    {
+      "type": "paragraph",
+      "body": "* 해당 호 잡지를 직접 촬영한 사진입니다."
+    }
+  ],
+  "published": true
+}
