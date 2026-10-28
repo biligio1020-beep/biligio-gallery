@@ -14,7 +14,7 @@
     },
     {
       "type": "photo",
-      "image": "/gallery/media/12321pngoptimized.jpg",
+      "image": "/gallery/media/se-b1e2fb37-b174-4c63-9f03-3112373b42d8.jpg",
       "caption": "쉽게 만나볼 수 없는 용고를 직접 연주해볼 수 있었습니다."
     },
     {
@@ -23,9 +23,18 @@
     },
     {
       "type": "photo_pair",
-      "image_left": "/gallery/media/kakaotalk2026092019165605804jpgoptimized.jpg",
+      "image_left": "/gallery/media/kakaotalk2026092019165605804-1.jpg",
       "image_right": "/gallery/media/kakaotalk20260921163456232jpgoptimized.jpg"
+    },
+    {
+      "type": "heading",
+      "text": "체험 부스"
+    },
+    {
+      "type": "photo_pair",
+      "image_left": "/gallery/media/kakaotalk2026092116345623203.jpg",
+      "image_right": "/gallery/media/kakaotalk2026092116345623202-1.jpg"
     }
   ],
-  "published": false
+  "published": true
 }
